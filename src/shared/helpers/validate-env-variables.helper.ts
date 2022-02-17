@@ -5,7 +5,6 @@ import { ConfigEnum, IConfig } from '../interfaces/config-enum.enum';
 
 export function validateEnvVariables(envVarsValues: IConfig): void {
   const envVarsSchema: ObjectSchema = object({
-    [ConfigEnum.HOST]: string().hostname().required(),
     [ConfigEnum.PORT]: number().required(),
     [ConfigEnum.DOMAIN]: string().required(),
     [ConfigEnum.WEB_DOMAIN]: string().required(),

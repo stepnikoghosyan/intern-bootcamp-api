@@ -1,5 +1,4 @@
 export enum ConfigEnum {
-  HOST = 'HOST',
   PORT = 'PORT',
   DOMAIN = 'DOMAIN',
   WEB_DOMAIN = 'WEB_DOMAIN',
@@ -29,7 +28,6 @@ export enum ConfigEnum {
 }
 
 export interface IConfig {
-  HOST: string;
   PORT: number;
   DOMAIN: string;
   WEB_DOMAIN: string;
