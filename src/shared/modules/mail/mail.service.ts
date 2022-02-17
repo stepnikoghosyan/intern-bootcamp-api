@@ -81,7 +81,7 @@ export class MailService {
         html,
       });
     } catch (err) {
-      console.log('error3');
+      console.log('error3:', err);
       console.log(html);
       return false;
     } finally {
