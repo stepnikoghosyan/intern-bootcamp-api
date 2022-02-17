@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
 
@@ -30,7 +34,9 @@ export class CommentsService extends BaseService<Comment> {
     super(model);
   }
 
-  public async getComments(queryParams?: ICommentQueryParams): Promise<IPaginationResponse<Comment>> {
+  public async getComments(
+    queryParams?: ICommentQueryParams,
+  ): Promise<IPaginationResponse<Comment>> {
     if (!queryParams && !queryParams.posts && !queryParams.posts.length) {
       throw new BadRequestException('Post id is required');
     }
@@ -45,12 +51,21 @@ export class CommentsService extends BaseService<Comment> {
       include: [
         {
           model: User,
-          include: [{
-            model: Attachment,
-            attributes: ['fileName'],
-          }],
+          include: [
+            {
+              model: Attachment,
+              attributes: ['fileName'],
+            },
+          ],
           attributes: {
-            exclude: ['password', 'profilePictureId', 'attachment', 'activatedAt', 'createdAt', 'updatedAt'],
+            exclude: [
+              'password',
+              'profilePictureId',
+              'attachment',
+              'activatedAt',
+              'createdAt',
+              'updatedAt',
+            ],
           },
         },
       ],
@@ -60,9 +75,12 @@ export class CommentsService extends BaseService<Comment> {
 
     return {
       count,
-      results: JSON.parse(JSON.stringify(rows)).map(item => {
+      results: JSON.parse(JSON.stringify(rows)).map((item) => {
         if (item.user.attachment?.fileName) {
-          item.user.profilePictureUrl = `${getProfilePictureUrl(this.configService, item.user.attachment.fileName)}`;
+          item.user.profilePictureUrl = `${getProfilePictureUrl(
+            this.configService,
+            item.user.attachment.fileName,
+          )}`;
         } else {
           item.user.profilePictureUrl = null;
         }
@@ -73,16 +91,28 @@ export class CommentsService extends BaseService<Comment> {
     };
   }
 
-  public async createComment(userID: number, postID: number, payload: CreateOrUpdateCommentDto): Promise<Comment> {
+  public async createComment(
+    userID: number,
+    postID: number,
+    payload: CreateOrUpdateCommentDto,
+  ): Promise<Comment> {
     const post = await this.postsService.getByID(postID);
     if (!post) {
       throw new NotFoundException('Post with given id not found');
     }
 
-    return this.model.create({ message: payload.message, postId: postID, userId: userID });
+    return this.model.create({
+      message: payload.message,
+      postId: postID,
+      userId: userID,
+    });
   }
 
-  public async updateComment(userID: number, commentID: number, payload: CreateOrUpdateCommentDto): Promise<Comment> {
+  public async updateComment(
+    userID: number,
+    commentID: number,
+    payload: CreateOrUpdateCommentDto,
+  ): Promise<Comment> {
     const comment = await this.model.findByPk(commentID);
     if (!comment) {
       throw new NotFoundException('Comment with given id not found');

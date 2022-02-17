@@ -2,7 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode, Param,
+  HttpCode,
+  Param,
   Put,
   Query,
   UploadedFile,
@@ -26,8 +27,7 @@ import { User } from './user.entity';
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @ApiQuery({ name: 'page', type: Number, required: false })
@@ -38,9 +38,7 @@ export class UsersController {
   }
 
   @Get('my-profile')
-  getCurrentUserProfileData(
-    @CurrentUser() currentUser: Partial<User>,
-  ) {
+  getCurrentUserProfileData(@CurrentUser() currentUser: Partial<User>) {
     return this.usersService.getUserProfileData(currentUser.id);
   }
 

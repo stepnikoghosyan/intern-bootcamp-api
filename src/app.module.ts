@@ -31,12 +31,24 @@ import { CommentsModule } from './routes/comments/comments.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         dialect: 'mysql',
-        host: configService.get<IConfig[ConfigEnum.DATABASE_HOST]>(ConfigEnum.DATABASE_HOST),
-        port: +configService.get<IConfig[ConfigEnum.DATABASE_PORT]>(ConfigEnum.DATABASE_PORT),
-        username: configService.get<IConfig[ConfigEnum.DATABASE_USERNAME]>(ConfigEnum.DATABASE_USERNAME),
-        password: configService.get<IConfig[ConfigEnum.DATABASE_PASSWORD]>(ConfigEnum.DATABASE_PASSWORD),
-        database: configService.get<IConfig[ConfigEnum.DATABASE_NAME]>(ConfigEnum.DATABASE_NAME),
-        retryAttempts: +configService.get<IConfig[ConfigEnum.DATABASE_CONNECTION_LIMIT]>(ConfigEnum.DATABASE_CONNECTION_LIMIT),
+        host: configService.get<IConfig[ConfigEnum.DATABASE_HOST]>(
+          ConfigEnum.DATABASE_HOST,
+        ),
+        port: +configService.get<IConfig[ConfigEnum.DATABASE_PORT]>(
+          ConfigEnum.DATABASE_PORT,
+        ),
+        username: configService.get<IConfig[ConfigEnum.DATABASE_USERNAME]>(
+          ConfigEnum.DATABASE_USERNAME,
+        ),
+        password: configService.get<IConfig[ConfigEnum.DATABASE_PASSWORD]>(
+          ConfigEnum.DATABASE_PASSWORD,
+        ),
+        database: configService.get<IConfig[ConfigEnum.DATABASE_NAME]>(
+          ConfigEnum.DATABASE_NAME,
+        ),
+        retryAttempts: +configService.get<
+          IConfig[ConfigEnum.DATABASE_CONNECTION_LIMIT]
+        >(ConfigEnum.DATABASE_CONNECTION_LIMIT),
         models: getEntitiesList(),
         synchronize: true,
       }),
@@ -63,5 +75,4 @@ import { CommentsModule } from './routes/comments/comments.module';
     },
   ],
 })
-export class AppModule {
-}
+export class AppModule {}

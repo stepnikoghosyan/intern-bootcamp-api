@@ -50,5 +50,4 @@ import { multerConfigFactory } from '../../shared/helpers/multer-config-factory.
   controllers: [UsersController],
   exports: [UsersService],
 })
-export class UsersModule {
-}
+export class UsersModule {}

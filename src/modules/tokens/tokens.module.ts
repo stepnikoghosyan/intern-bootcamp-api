@@ -28,5 +28,4 @@ import { ConfigEnum } from '../../shared/interfaces/config-enum.enum';
   providers: [TokensService],
   exports: [TokensService],
 })
-export class TokensModule {
-}
+export class TokensModule {}

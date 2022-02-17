@@ -45,9 +45,11 @@ export class AuthService extends BaseService<User> {
     super(User);
   }
 
-  public async login(payload: UserLoginDto): Promise<{ accessToken: string, refreshToken: string }> {
+  public async login(
+    payload: UserLoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.usersService.getUserByEmail(payload.email, true);
-    if (!user || !await compare(payload.password, user.password)) {
+    if (!user || !(await compare(payload.password, user.password))) {
       throw new BadRequestException('Invalid email or password');
     }
 
@@ -116,28 +118,37 @@ export class AuthService extends BaseService<User> {
     }
 
     // TOKEN: userId, tokenId
-    const activationToken = await this.tokensService.saveToken(UserTokenTypes.RESET_PASSWORD, user.id, '2h');
+    const activationToken = await this.tokensService.saveToken(
+      UserTokenTypes.RESET_PASSWORD,
+      user.id,
+      '2h',
+    );
     const WEB_DOMAIN = this.configService.get(ConfigEnum.WEB_DOMAIN);
 
     const resetPasswordUrl = [
       WEB_DOMAIN,
       'reset-password',
-      activationToken.token
+      activationToken.token,
     ].join('/');
 
-    const isEmailSent = await this.mailService.sendMail(MailActions.FORGOT_PASSWORD, {
-      to: email,
-      templateData: {
-        user: {
-          fullName: `${user.firstName} ${user.lastName}`,
-          email,
+    const isEmailSent = await this.mailService.sendMail(
+      MailActions.FORGOT_PASSWORD,
+      {
+        to: email,
+        templateData: {
+          user: {
+            fullName: `${user.firstName} ${user.lastName}`,
+            email,
+          },
+          resetPasswordUrl,
         },
-        resetPasswordUrl,
       },
-    });
+    );
 
     if (!isEmailSent) {
-      throw new InternalServerErrorException('Could not send email. Please try again later.');
+      throw new InternalServerErrorException(
+        'Could not send email. Please try again later.',
+      );
     }
   }
 
@@ -159,7 +170,10 @@ export class AuthService extends BaseService<User> {
       throw new ForbiddenException('Account is not activated');
     }
 
-    const userToken = await this.tokensService.findToken(decoded.tokenId, decoded.userId);
+    const userToken = await this.tokensService.findToken(
+      decoded.tokenId,
+      decoded.userId,
+    );
     if (!userToken) {
       throw new BadRequestException('Invalid token.');
     }
@@ -169,7 +183,9 @@ export class AuthService extends BaseService<User> {
     await this.tokensService.deleteToken(userToken.id);
   }
 
-  public async refreshTokens(payload: RefreshTokensDto): Promise<{ accessToken: string, refreshToken: string }> {
+  public async refreshTokens(
+    payload: RefreshTokensDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     if (!payload.refreshToken) {
       throw new UnauthorizedException('Unauthorized. refreshToken is required');
     }
@@ -194,7 +210,9 @@ export class AuthService extends BaseService<User> {
     return this.generateTokens(decoded.id);
   }
 
-  private async generateTokens(userID: number): Promise<{ accessToken: string; refreshToken: string }> {
+  private async generateTokens(
+    userID: number,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload = {
       id: userID,
     };

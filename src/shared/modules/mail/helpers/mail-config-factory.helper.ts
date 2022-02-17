@@ -7,18 +7,18 @@ const mailconfig: MailConfig = {
   SIGNUP_SUCCESS: {
     title: 'Signup success',
     subject: 'signup success',
-    templateName: 'signup-success'
+    templateName: 'signup-success',
   },
   FORGOT_PASSWORD: {
     title: 'Forgot password',
     subject: 'Reset password',
-    templateName: 'reset-password'
+    templateName: 'reset-password',
   },
   EMAIL_CHANGED: {
     title: 'Email changed',
     subject: 'New email verification',
-    templateName: 'email-changed'
-  }
+    templateName: 'email-changed',
+  },
 };
 
 /**

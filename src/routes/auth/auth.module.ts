@@ -38,5 +38,4 @@ import { ConfigEnum } from '../../shared/interfaces/config-enum.enum';
   controllers: [AuthController],
   providers: [AuthService],
 })
-export class AuthModule {
-}
+export class AuthModule {}

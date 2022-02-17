@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 // services
@@ -20,8 +30,7 @@ import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 @ApiBearerAuth()
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {
-  }
+  constructor(private readonly commentsService: CommentsService) {}
 
   @Get()
   @ApiQuery({ name: 'page', type: Number, required: false })
@@ -50,7 +59,11 @@ export class CommentsController {
     @Body() payload: CreateOrUpdateCommentDto,
     @CurrentUser() currentUser: Partial<User>,
   ) {
-    return this.commentsService.updateComment(currentUser.id, commentID, payload);
+    return this.commentsService.updateComment(
+      currentUser.id,
+      commentID,
+      payload,
+    );
   }
 
   @Delete('/:id')

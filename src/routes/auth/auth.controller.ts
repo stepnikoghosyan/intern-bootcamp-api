@@ -17,8 +17,7 @@ import { Public } from '../../shared/decorators/public-endpoint.decorator';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Public()
   @Post('login')

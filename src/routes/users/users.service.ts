@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/sequelize';
 import { hash } from 'bcrypt';
@@ -54,7 +59,10 @@ export class UsersService extends BaseService<User> {
 
     const data = JSON.parse(JSON.stringify(user));
     delete data.attachment;
-    data.profilePictureUrl = `${getProfilePictureUrl(this.configService, data.profilePictureUrl)}`;
+    data.profilePictureUrl = `${getProfilePictureUrl(
+      this.configService,
+      data.profilePictureUrl,
+    )}`;
 
     return data;
   }
@@ -63,7 +71,10 @@ export class UsersService extends BaseService<User> {
     return this.getUserByID(id);
   }
 
-  public getUserByEmail(email: string, includePassword = false): Promise<User | undefined> {
+  public getUserByEmail(
+    email: string,
+    includePassword = false,
+  ): Promise<User | undefined> {
     if (includePassword) {
       return this.model.findOne({
         where: { email },
@@ -76,8 +87,10 @@ export class UsersService extends BaseService<User> {
     return this.model.findOne({ where: { email } });
   }
 
-  public async getUsers(queryParams: IPaginationQueryParams): Promise<IPaginationResponse<any>> {
-    let options: FindAndCountOptions<Post['_attributes']> = {
+  public async getUsers(
+    queryParams: IPaginationQueryParams,
+  ): Promise<IPaginationResponse<any>> {
+    const options: FindAndCountOptions<Post['_attributes']> = {
       ...this.getPaginationValues(queryParams),
       include: {
         model: Attachment,
@@ -93,17 +106,23 @@ export class UsersService extends BaseService<User> {
 
     return {
       count: count,
-      results: JSON.parse(JSON.stringify(rows)).map(item => {
+      results: JSON.parse(JSON.stringify(rows)).map((item) => {
         delete item.attachment;
 
-        item.profilePictureUrl = `${getProfilePictureUrl(this.configService, item.profilePictureUrl)}`;
+        item.profilePictureUrl = `${getProfilePictureUrl(
+          this.configService,
+          item.profilePictureUrl,
+        )}`;
         return item;
       }),
     };
   }
 
   public async createUser(payload: UserRegisterDto): Promise<Partial<User>> {
-    const hashedPassword = await hash(payload.password, +this.configService.get(ConfigEnum.HASH_SALT_ROUNDS));
+    const hashedPassword = await hash(
+      payload.password,
+      +this.configService.get(ConfigEnum.HASH_SALT_ROUNDS),
+    );
     const result: User = await this.model.create({
       ...payload,
       password: hashedPassword,
@@ -116,7 +135,11 @@ export class UsersService extends BaseService<User> {
     return userData;
   }
 
-  public async updateUser(id: number, payload: UpdateUserDto, file?: Express.Multer.File): Promise<any> {
+  public async updateUser(
+    id: number,
+    payload: UpdateUserDto,
+    file?: Express.Multer.File,
+  ): Promise<any> {
     const user = await this.getByID(id);
     if (!user.activatedAt) {
       throw new ForbiddenException('Account is not activated');
@@ -129,7 +152,11 @@ export class UsersService extends BaseService<User> {
     };
 
     if (!!file) {
-      const attachment = await this.attachmentsService.createOrUpdate(this.profilePicturesPathInStorage, user.profilePictureId, file);
+      const attachment = await this.attachmentsService.createOrUpdate(
+        this.profilePicturesPathInStorage,
+        user.profilePictureId,
+        file,
+      );
       if (!!attachment) {
         dataForUpdate.profilePictureId = attachment.id;
       }
@@ -165,20 +192,33 @@ export class UsersService extends BaseService<User> {
     });
   }
 
-  public async changeUserPassword(userID: number, password: string): Promise<void> {
+  public async changeUserPassword(
+    userID: number,
+    password: string,
+  ): Promise<void> {
     if (!userID || !password) {
       throw new BadRequestException('userId ans password are required.');
     }
 
-    const hashedPassword = await hash(password, +this.configService.get(ConfigEnum.HASH_SALT_ROUNDS));
+    const hashedPassword = await hash(
+      password,
+      +this.configService.get(ConfigEnum.HASH_SALT_ROUNDS),
+    );
 
-    await this.model.update({
-      password: hashedPassword,
-    }, { where: { id: userID } });
+    await this.model.update(
+      {
+        password: hashedPassword,
+      },
+      { where: { id: userID } },
+    );
   }
 
   private get profilePicturesPathInStorage(): string {
-    const names = [ConfigEnum.ROOT_STORAGE_PATH, ConfigEnum.IMAGES_PATH, ConfigEnum.PROFILE_PICTURES_IMAGES_PATH];
-    return names.map(item => this.configService.get(item)).join('/');
+    const names = [
+      ConfigEnum.ROOT_STORAGE_PATH,
+      ConfigEnum.IMAGES_PATH,
+      ConfigEnum.PROFILE_PICTURES_IMAGES_PATH,
+    ];
+    return names.map((item) => this.configService.get(item)).join('/');
   }
 }

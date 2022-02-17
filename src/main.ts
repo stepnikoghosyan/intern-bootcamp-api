@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
-import { join } from "path";
+import { join } from 'path';
 
 // modules
 import { AppModule } from './app.module';
@@ -37,14 +37,19 @@ async function bootstrap() {
 
   // Serve Static Files
   // TODO: check if there is more Nest.js way of serving static files
-  app.use('/public', express.static(join(process.cwd(), configService.get(ConfigEnum.ROOT_STORAGE_PATH))));
+  app.use(
+    '/public',
+    express.static(
+      join(process.cwd(), configService.get(ConfigEnum.ROOT_STORAGE_PATH)),
+    ),
+  );
 
   // Swagger
   const config = new DocumentBuilder()
-  .setTitle('Blog API')
-  .setVersion('1.0')
-  .addBearerAuth()
-  .build();
+    .setTitle('Blog API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
@@ -55,4 +60,3 @@ async function bootstrap() {
 bootstrap();
 
 // TODO: Delete uploaded file from /storage on errors
-

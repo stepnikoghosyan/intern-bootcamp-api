@@ -5,8 +5,11 @@ import {
   Get,
   HttpCode,
   Param,
-  Post, Put,
-  Query, UploadedFile, UseInterceptors,
+  Post,
+  Put,
+  Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -31,8 +34,7 @@ import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 @ApiBearerAuth()
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {
-  }
+  constructor(private readonly postsService: PostsService) {}
 
   @Get()
   @ApiQuery({ name: 'page', type: Number, required: false })

@@ -8,7 +8,9 @@ import { validateOrReject } from 'class-validator';
  * @param {T} Model
  * @returns {Promise<void>}
  */
-export function validateEmailTemplateData<T extends {new(...args: any[]): any}>(data: object, Model: T): Promise<void> {
+export function validateEmailTemplateData<
+  T extends { new (...args: any[]): any },
+>(data: any, Model: T): Promise<void> {
   const model = new Model();
   Object.assign(model, data);
   return validateOrReject(model);

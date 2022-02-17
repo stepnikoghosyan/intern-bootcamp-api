@@ -13,11 +13,13 @@ export function validateEnvVariables(envVarsValues: IConfig): void {
     [ConfigEnum.DATABASE_HOST]: string().required(),
     [ConfigEnum.DATABASE_PORT]: number().required(),
     [ConfigEnum.DATABASE_USERNAME]: string().required(),
-    [ConfigEnum.DATABASE_PASSWORD]: string().required(),
+    [ConfigEnum.DATABASE_PASSWORD]: string().empty(),
     [ConfigEnum.DATABASE_NAME]: string().required(),
     [ConfigEnum.DATABASE_CONNECTION_LIMIT]: number().required(),
 
-    [ConfigEnum.JWT_SIGN_ALGORITHM]: string().required().valid('RS256', 'HS256'),
+    [ConfigEnum.JWT_SIGN_ALGORITHM]: string()
+      .required()
+      .valid('RS256', 'HS256'),
     [ConfigEnum.JWT_EXPIRE]: string().required(),
     [ConfigEnum.JWT_REFRESH_EXPIRE]: string().required(),
     [ConfigEnum.JWT_PRIVATE_KEY]: string().required(),

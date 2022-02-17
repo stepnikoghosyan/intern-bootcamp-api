@@ -24,9 +24,9 @@ export class UserRegisterDto {
     properties: {
       file: {
         type: 'string',
-        format: 'binary'
-      }
-    }
+        format: 'binary',
+      },
+    },
   })
   profilePicture: any;
 }

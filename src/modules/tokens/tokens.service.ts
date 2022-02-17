@@ -31,7 +31,11 @@ export class TokensService extends BaseService<Token> {
     });
   }
 
-  public async saveToken(type: UserTokenTypes, userID: number, expiresIn?: IConfig[ConfigEnum.JWT_EXPIRE]): Promise<IToken> {
+  public async saveToken(
+    type: UserTokenTypes,
+    userID: number,
+    expiresIn?: IConfig[ConfigEnum.JWT_EXPIRE],
+  ): Promise<IToken> {
     // const accessToken = await this.jwtService.signAsync(payload, {
     //   privateKey,
     //   expiresIn: this.configService.get(ConfigEnum.JWT_EXPIRE),
@@ -39,11 +43,14 @@ export class TokensService extends BaseService<Token> {
     // });
 
     // Generate token and save to db and get id of user_token from db
-    const prevToken = await this.jwtService.signAsync({ userID }, {
-      privateKey: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
-      expiresIn,
-      algorithm: this.configService.get(ConfigEnum.JWT_SIGN_ALGORITHM),
-    });
+    const prevToken = await this.jwtService.signAsync(
+      { userID },
+      {
+        privateKey: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
+        expiresIn,
+        algorithm: this.configService.get(ConfigEnum.JWT_SIGN_ALGORITHM),
+      },
+    );
     const result = await this.model.create({
       token: prevToken,
       userId: userID,
@@ -51,16 +58,22 @@ export class TokensService extends BaseService<Token> {
     });
 
     // Update token with tokenID so that we find it with tokenID, not with token
-    const newToken = await this.jwtService.signAsync({ userId: userID, tokenId: result.id }, {
-      privateKey: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
-      expiresIn,
-      algorithm: this.configService.get(ConfigEnum.JWT_SIGN_ALGORITHM),
-    });
+    const newToken = await this.jwtService.signAsync(
+      { userId: userID, tokenId: result.id },
+      {
+        privateKey: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
+        expiresIn,
+        algorithm: this.configService.get(ConfigEnum.JWT_SIGN_ALGORITHM),
+      },
+    );
 
     // Update token in db
-    await result.update({
-      token: newToken,
-    }, { where: { id: result.id } });
+    await result.update(
+      {
+        token: newToken,
+      },
+      { where: { id: result.id } },
+    );
 
     return {
       id: result.id,

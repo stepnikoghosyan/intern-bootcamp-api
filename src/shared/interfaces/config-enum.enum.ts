@@ -25,7 +25,7 @@ export enum ConfigEnum {
   POSTS_IMAGES_PATH = 'POSTS_IMAGES_PATH',
 
   SENDGRID_API_KEY = 'SENDGRID_API_KEY',
-  MAIL_FROM = 'MAIL_FROM'
+  MAIL_FROM = 'MAIL_FROM',
 }
 
 export interface IConfig {

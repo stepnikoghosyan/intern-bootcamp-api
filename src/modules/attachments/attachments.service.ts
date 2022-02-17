@@ -17,11 +17,17 @@ export class AttachmentsService extends BaseService<Attachment> {
     return !!id ? this.model.findByPk(id) : null;
   }
 
-  public async createOrUpdate(basePath: string, previousAttachmentID: number, file: Express.Multer.File): Promise<Attachment> {
+  public async createOrUpdate(
+    basePath: string,
+    previousAttachmentID: number,
+    file: Express.Multer.File,
+  ): Promise<Attachment> {
     let resultAttachment: Attachment;
 
     // Update
-    const currentAttachment = await this.getAttachmentById(previousAttachmentID);
+    const currentAttachment = await this.getAttachmentById(
+      previousAttachmentID,
+    );
     if (!!currentAttachment) {
       const previousAttachmentFileName = currentAttachment.fileName;
 
@@ -31,7 +37,9 @@ export class AttachmentsService extends BaseService<Attachment> {
       });
 
       // Delete previous file from storage
-      await this.deleteExistingAttachment(resolve(basePath, previousAttachmentFileName));
+      await this.deleteExistingAttachment(
+        resolve(basePath, previousAttachmentFileName),
+      );
 
       resultAttachment = currentAttachment;
     } else {
@@ -43,10 +51,8 @@ export class AttachmentsService extends BaseService<Attachment> {
   }
 
   private deleteExistingAttachment(path: string): Promise<void> {
-    return new Promise(
-      resolve => {
-        unlink(path, () => resolve());
-      },
-    );
+    return new Promise((resolve) => {
+      unlink(path, () => resolve());
+    });
   }
 }

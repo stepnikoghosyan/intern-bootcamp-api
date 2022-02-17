@@ -13,11 +13,10 @@ export interface IMailActions {
 export enum MailActions {
   SIGNUP_SUCCESS = 'SIGNUP_SUCCESS',
   FORGOT_PASSWORD = 'FORGOT_PASSWORD',
-  EMAIL_CHANGED = 'EMAIL_CHANGED'
+  EMAIL_CHANGED = 'EMAIL_CHANGED',
 }
 
 export class MailTemplateData<T extends keyof IMailActions> {
-
   @IsNotEmpty()
   @IsEmail()
   public to: string;

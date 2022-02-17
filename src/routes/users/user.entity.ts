@@ -1,4 +1,12 @@
-import { Table, Model, Column, DataType, ForeignKey, HasMany, BelongsTo } from 'sequelize-typescript';
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  BelongsTo,
+} from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { Attachment } from '../../modules/attachments/attachment.entity';
 import { Post } from '../posts/post.entity';

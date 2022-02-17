@@ -35,5 +35,4 @@ import { MulterConfigType } from '../../shared/interfaces/multer-config-type.mod
   controllers: [PostsController],
   exports: [PostsService],
 })
-export class PostsModule {
-}
+export class PostsModule {}

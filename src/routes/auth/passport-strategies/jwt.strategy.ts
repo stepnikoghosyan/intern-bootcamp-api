@@ -13,20 +13,23 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
-    super({
-      secretOrKey: configService.get(ConfigEnum.JWT_PRIVATE_KEY),
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    }, async (payload: any, done: VerifiedCallback) => {
-      try {
-        const user = await this.usersService.getByID(payload.id);
-        if (user) {
-          return done(null, user.toJSON());
-        }
+    super(
+      {
+        secretOrKey: configService.get(ConfigEnum.JWT_PRIVATE_KEY),
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      },
+      async (payload: any, done: VerifiedCallback) => {
+        try {
+          const user = await this.usersService.getByID(payload.id);
+          if (user) {
+            return done(null, user.toJSON());
+          }
 
-        return done(null, false);
-      } catch (ex) {
-        return done(ex, false);
-      }
-    });
+          return done(null, false);
+        } catch (ex) {
+          return done(ex, false);
+        }
+      },
+    );
   }
 }

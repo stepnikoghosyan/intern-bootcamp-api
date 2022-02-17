@@ -36,17 +36,26 @@ export class PostsService extends BaseService<Post> {
   }
 
   public async getPostByID(id: number): Promise<Post> {
-    let options: FindAndCountOptions<Post['_attributes']> = {
+    const options: FindAndCountOptions<Post['_attributes']> = {
       include: [
         {
           model: User,
           as: 'user',
-          include: [{
-            model: Attachment,
-            attributes: ['fileName'],
-          }],
+          include: [
+            {
+              model: Attachment,
+              attributes: ['fileName'],
+            },
+          ],
           attributes: {
-            exclude: ['password', 'profilePictureId', 'attachment', 'activatedAt', 'createdAt', 'updatedAt'],
+            exclude: [
+              'password',
+              'profilePictureId',
+              'attachment',
+              'activatedAt',
+              'createdAt',
+              'updatedAt',
+            ],
           },
         },
         {
@@ -61,16 +70,25 @@ export class PostsService extends BaseService<Post> {
           include: [
             {
               model: User,
-              include: [{
-                model: Attachment,
-                attributes: ['fileName'],
-              }],
+              include: [
+                {
+                  model: Attachment,
+                  attributes: ['fileName'],
+                },
+              ],
               attributes: {
-                exclude: ['password', 'profilePictureId', 'attachment', 'activatedAt', 'createdAt', 'updatedAt'],
+                exclude: [
+                  'password',
+                  'profilePictureId',
+                  'attachment',
+                  'activatedAt',
+                  'createdAt',
+                  'updatedAt',
+                ],
               },
             },
           ],
-        }
+        },
       ],
       attributes: {
         exclude: ['imageId', 'userId', 'activatedAt', 'createdAt', 'updatedAt'],
@@ -96,16 +114,22 @@ export class PostsService extends BaseService<Post> {
 
     // user
     if (data.user.attachment?.fileName) {
-      data.user.profilePictureUrl = `${getProfilePictureUrl(this.configService, data.user.attachment.fileName)}`;
+      data.user.profilePictureUrl = `${getProfilePictureUrl(
+        this.configService,
+        data.user.attachment.fileName,
+      )}`;
     } else {
       data.user.profilePictureUrl = null;
     }
     delete data.user.attachment;
 
     // comment
-    data.comments.map(comment => {
+    data.comments.map((comment) => {
       if (comment.user.attachment?.fileName) {
-        comment.user.profilePictureUrl = `${getProfilePictureUrl(this.configService, comment.user.attachment.fileName)}`;
+        comment.user.profilePictureUrl = `${getProfilePictureUrl(
+          this.configService,
+          comment.user.attachment.fileName,
+        )}`;
       } else {
         comment.user.profilePictureUrl = null;
       }
@@ -115,19 +139,30 @@ export class PostsService extends BaseService<Post> {
     return data;
   }
 
-  public async getPosts(queryParams?: IPostQueryParams): Promise<IPaginationResponse<Post>> {
-    let options: FindAndCountOptions<Post['_attributes']> = {
+  public async getPosts(
+    queryParams?: IPostQueryParams,
+  ): Promise<IPaginationResponse<Post>> {
+    const options: FindAndCountOptions<Post['_attributes']> = {
       ...this.getPaginationValues(queryParams),
       include: [
         {
           model: User,
           as: 'user',
-          include: [{
-            model: Attachment,
-            attributes: ['fileName'],
-          }],
+          include: [
+            {
+              model: Attachment,
+              attributes: ['fileName'],
+            },
+          ],
           attributes: {
-            exclude: ['password', 'profilePictureId', 'attachment', 'activatedAt', 'createdAt', 'updatedAt'],
+            exclude: [
+              'password',
+              'profilePictureId',
+              'attachment',
+              'activatedAt',
+              'createdAt',
+              'updatedAt',
+            ],
           },
         },
         {
@@ -142,12 +177,21 @@ export class PostsService extends BaseService<Post> {
           include: [
             {
               model: User,
-              include: [{
-                model: Attachment,
-                attributes: ['fileName'],
-              }],
+              include: [
+                {
+                  model: Attachment,
+                  attributes: ['fileName'],
+                },
+              ],
               attributes: {
-                exclude: ['password', 'profilePictureId', 'attachment', 'activatedAt', 'createdAt', 'updatedAt'],
+                exclude: [
+                  'password',
+                  'profilePictureId',
+                  'attachment',
+                  'activatedAt',
+                  'createdAt',
+                  'updatedAt',
+                ],
               },
             },
           ],
@@ -168,7 +212,7 @@ export class PostsService extends BaseService<Post> {
     const { rows, count } = await this.model.findAndCountAll(options);
     return {
       count: count,
-      results: JSON.parse(JSON.stringify(rows)).map(item => {
+      results: JSON.parse(JSON.stringify(rows)).map((item) => {
         // post
         if (item.attachment?.fileName) {
           item.imageUrl = `${this.postImageUrl}/${item.attachment.fileName}`;
@@ -179,16 +223,22 @@ export class PostsService extends BaseService<Post> {
 
         // user
         if (item.user.attachment?.fileName) {
-          item.user.profilePictureUrl = `${getProfilePictureUrl(this.configService, item.user.attachment.fileName)}`;
+          item.user.profilePictureUrl = `${getProfilePictureUrl(
+            this.configService,
+            item.user.attachment.fileName,
+          )}`;
         } else {
           item.user.profilePictureUrl = null;
         }
         delete item.user.attachment;
 
         // comment
-        item.comments.map(comment => {
+        item.comments.map((comment) => {
           if (comment.user.attachment?.fileName) {
-            comment.user.profilePictureUrl = `${getProfilePictureUrl(this.configService, comment.user.attachment.fileName)}`;
+            comment.user.profilePictureUrl = `${getProfilePictureUrl(
+              this.configService,
+              comment.user.attachment.fileName,
+            )}`;
           } else {
             comment.user.profilePictureUrl = null;
           }
@@ -200,7 +250,11 @@ export class PostsService extends BaseService<Post> {
     };
   }
 
-  public async create(userID: number, payload: CreatePostDto, file?: Express.Multer.File): Promise<Post> {
+  public async create(
+    userID: number,
+    payload: CreatePostDto,
+    file?: Express.Multer.File,
+  ): Promise<Post> {
     const createData = {
       title: payload.title,
       body: payload.body,
@@ -209,7 +263,11 @@ export class PostsService extends BaseService<Post> {
     };
 
     if (!!file) {
-      const attachment = await this.attachmentsService.createOrUpdate(this.postImagesPathInStorage, null, file);
+      const attachment = await this.attachmentsService.createOrUpdate(
+        this.postImagesPathInStorage,
+        null,
+        file,
+      );
       if (!!attachment) {
         createData.imageId = attachment.id;
       }
@@ -218,7 +276,12 @@ export class PostsService extends BaseService<Post> {
     return this.model.create(createData);
   }
 
-  public async update(userID: number, postID: number, payload: UpdatePostDto, file?: Express.Multer.File): Promise<Post> {
+  public async update(
+    userID: number,
+    postID: number,
+    payload: UpdatePostDto,
+    file?: Express.Multer.File,
+  ): Promise<Post> {
     const post = await this.model.findOne({
       where: {
         id: postID,
@@ -236,7 +299,11 @@ export class PostsService extends BaseService<Post> {
     };
 
     if (!!file) {
-      const attachment = await this.attachmentsService.createOrUpdate(this.postImagesPathInStorage, post.imageId, file);
+      const attachment = await this.attachmentsService.createOrUpdate(
+        this.postImagesPathInStorage,
+        post.imageId,
+        file,
+      );
       if (!!attachment) {
         dataForUpdate.imageId = attachment.id;
       }
@@ -263,12 +330,21 @@ export class PostsService extends BaseService<Post> {
   }
 
   private get postImagesPathInStorage(): string {
-    const names = [ConfigEnum.ROOT_STORAGE_PATH, ConfigEnum.IMAGES_PATH, ConfigEnum.POSTS_IMAGES_PATH];
-    return names.map(item => this.configService.get(item)).join('/');
+    const names = [
+      ConfigEnum.ROOT_STORAGE_PATH,
+      ConfigEnum.IMAGES_PATH,
+      ConfigEnum.POSTS_IMAGES_PATH,
+    ];
+    return names.map((item) => this.configService.get(item)).join('/');
   }
 
   private get postImageUrl(): string {
-    const names = [ConfigEnum.DOMAIN, ConfigEnum.ROOT_PUBLIC_STORAGE_PATH, ConfigEnum.IMAGES_PATH, ConfigEnum.POSTS_IMAGES_PATH];
-    return names.map(item => this.configService.get(item)).join('/');
+    const names = [
+      ConfigEnum.DOMAIN,
+      ConfigEnum.ROOT_PUBLIC_STORAGE_PATH,
+      ConfigEnum.IMAGES_PATH,
+      ConfigEnum.POSTS_IMAGES_PATH,
+    ];
+    return names.map((item) => this.configService.get(item)).join('/');
   }
 }

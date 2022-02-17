@@ -8,11 +8,8 @@ import { AttachmentsService } from './attachments.service';
 import { Attachment } from './attachment.entity';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([Attachment]),
-  ],
+  imports: [SequelizeModule.forFeature([Attachment])],
   providers: [AttachmentsService],
   exports: [AttachmentsService],
 })
-export class AttachmentsModule {
-}
+export class AttachmentsModule {}

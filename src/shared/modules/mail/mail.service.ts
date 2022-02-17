@@ -6,7 +6,11 @@ import { ConfigService } from '@nestjs/config';
 
 // models
 import { IMailDataBase } from './models/mail-data-base.model';
-import { IMailActions, MailActions, MailTemplateData } from './models/mail-actions.model';
+import {
+  IMailActions,
+  MailActions,
+  MailTemplateData,
+} from './models/mail-actions.model';
 import { ConfigEnum } from '../../interfaces/config-enum.enum';
 
 // helpers
@@ -18,10 +22,12 @@ export class MailService {
   constructor(
     private readonly sendGrid: SendGridService,
     private readonly configService: ConfigService,
-  ) {
-  }
+  ) {}
 
-  public async sendMail<K extends keyof IMailActions>(action: MailActions, data: MailTemplateData<K>): Promise<boolean> {
+  public async sendMail<K extends keyof IMailActions>(
+    action: MailActions,
+    data: MailTemplateData<K>,
+  ): Promise<boolean> {
     try {
       await validateEmailTemplateData(data, MailTemplateData);
     } catch (errors) {
@@ -35,10 +41,27 @@ export class MailService {
     try {
       mailConfig = getMailConfig(action);
 
-      const templateUrl = join(process.cwd(), 'src', 'shared', 'modules', 'mail', 'templates', `${mailConfig.templateName}.ejs`);
+      const templateUrl = join(
+        process.cwd(),
+        'src',
+        'shared',
+        'modules',
+        'mail',
+        'templates',
+        `${mailConfig.templateName}.ejs`,
+      );
 
       html = await renderFile(
-        join(process.cwd(), 'src', 'shared', 'modules', 'mail', 'templates', 'base', 'index.ejs'),
+        join(
+          process.cwd(),
+          'src',
+          'shared',
+          'modules',
+          'mail',
+          'templates',
+          'base',
+          'index.ejs',
+        ),
         {
           templateUrl,
           title: mailConfig.title,
@@ -58,8 +81,11 @@ export class MailService {
         html,
       });
     } catch (err) {
-      console.log('error3:', err);
+      console.log('error3');
+      console.log(html);
       return false;
+    } finally {
+      console.log(html);
     }
 
     return true;
