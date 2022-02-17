@@ -29,6 +29,8 @@ async function bootstrap() {
   });
   validateEnvVariables(envVars);
 
+  console.log('aper');
+
   // Database
   await sequelize.sync();
 
