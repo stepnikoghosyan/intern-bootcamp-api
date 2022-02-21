@@ -77,10 +77,10 @@ export class CommentsService extends BaseService<Comment> {
       count,
       results: JSON.parse(JSON.stringify(rows)).map((item) => {
         if (item.user.attachment?.fileName) {
-          item.user.profilePictureUrl = `${getProfilePictureUrl(
+          item.user.profilePictureUrl = getProfilePictureUrl(
             this.configService,
             item.user.attachment.fileName,
-          )}`;
+          );
         } else {
           item.user.profilePictureUrl = null;
         }

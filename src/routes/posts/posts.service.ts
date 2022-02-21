@@ -114,10 +114,10 @@ export class PostsService extends BaseService<Post> {
 
     // user
     if (data.user.attachment?.fileName) {
-      data.user.profilePictureUrl = `${getProfilePictureUrl(
+      data.user.profilePictureUrl = getProfilePictureUrl(
         this.configService,
         data.user.attachment.fileName,
-      )}`;
+      );
     } else {
       data.user.profilePictureUrl = null;
     }
@@ -126,10 +126,10 @@ export class PostsService extends BaseService<Post> {
     // comment
     data.comments.map((comment) => {
       if (comment.user.attachment?.fileName) {
-        comment.user.profilePictureUrl = `${getProfilePictureUrl(
+        comment.user.profilePictureUrl = getProfilePictureUrl(
           this.configService,
           comment.user.attachment.fileName,
-        )}`;
+        );
       } else {
         comment.user.profilePictureUrl = null;
       }
@@ -223,10 +223,10 @@ export class PostsService extends BaseService<Post> {
 
         // user
         if (item.user.attachment?.fileName) {
-          item.user.profilePictureUrl = `${getProfilePictureUrl(
+          item.user.profilePictureUrl = getProfilePictureUrl(
             this.configService,
             item.user.attachment.fileName,
-          )}`;
+          );
         } else {
           item.user.profilePictureUrl = null;
         }
@@ -235,10 +235,10 @@ export class PostsService extends BaseService<Post> {
         // comment
         item.comments.map((comment) => {
           if (comment.user.attachment?.fileName) {
-            comment.user.profilePictureUrl = `${getProfilePictureUrl(
+            comment.user.profilePictureUrl = getProfilePictureUrl(
               this.configService,
               comment.user.attachment.fileName,
-            )}`;
+            );
           } else {
             comment.user.profilePictureUrl = null;
           }

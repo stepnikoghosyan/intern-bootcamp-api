@@ -59,10 +59,10 @@ export class UsersService extends BaseService<User> {
 
     const data = JSON.parse(JSON.stringify(user));
     delete data.attachment;
-    data.profilePictureUrl = `${getProfilePictureUrl(
+    data.profilePictureUrl = getProfilePictureUrl(
       this.configService,
       data.profilePictureUrl,
-    )}`;
+    );
 
     return data;
   }
@@ -109,10 +109,10 @@ export class UsersService extends BaseService<User> {
       results: JSON.parse(JSON.stringify(rows)).map((item) => {
         delete item.attachment;
 
-        item.profilePictureUrl = `${getProfilePictureUrl(
+        item.profilePictureUrl = getProfilePictureUrl(
           this.configService,
           item.profilePictureUrl,
-        )}`;
+        );
         return item;
       }),
     };
