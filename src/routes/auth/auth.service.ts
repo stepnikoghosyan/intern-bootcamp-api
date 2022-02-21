@@ -25,6 +25,7 @@ import { User } from '../users/user.entity';
 
 // dto
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResendActivationTokenDto } from './dto/resend-activation-token.dto';
 
 // models
 import { UserTokenTypes } from '../../modules/tokens/interfaces/token-types.model';
@@ -83,7 +84,7 @@ export class AuthService extends BaseService<User> {
 
   public async verifyAccount(query: any): Promise<void> {
     if (!query) {
-      throw new BadRequestException('Invalid query');
+      throw new BadRequestException('Invalid token');
     }
 
     const { activationToken }: { activationToken: string } = query;
@@ -181,6 +182,31 @@ export class AuthService extends BaseService<User> {
     await this.usersService.changeUserPassword(user.id, data.newPassword);
 
     await this.tokensService.deleteToken(userToken.id);
+  }
+
+  public async resendActivationToken(
+    data: ResendActivationTokenDto,
+  ): Promise<void> {
+    const user = await this.usersService.getUserByEmail(data.email);
+    if (!!user) {
+      throw new ConflictException('User not found');
+    }
+
+    if (!!user.activatedAt) {
+      throw new BadRequestException('Account is already verified');
+    }
+
+    await sendAccountVerificationEmail({
+      mailService: this.mailService,
+      configService: this.configService,
+      jwtService: this.jwtService,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    });
   }
 
   public async refreshTokens(

@@ -13,6 +13,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 // custom decorators
 import { Public } from '../../shared/decorators/public-endpoint.decorator';
+import { ResendActivationTokenDto } from './dto/resend-activation-token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -59,5 +60,12 @@ export class AuthController {
   @HttpCode(200)
   public verifyAccount(@Query() query) {
     return this.authService.verifyAccount(query);
+  }
+
+  @Public()
+  @Post('resend-activation-token')
+  @HttpCode(200)
+  public resendActivationToken(@Body() payload: ResendActivationTokenDto) {
+    return this.authService.resendActivationToken(payload);
   }
 }
