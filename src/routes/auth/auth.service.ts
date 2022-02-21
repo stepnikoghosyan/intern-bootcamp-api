@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -188,8 +189,8 @@ export class AuthService extends BaseService<User> {
     data: ResendActivationTokenDto,
   ): Promise<void> {
     const user = await this.usersService.getUserByEmail(data.email);
-    if (!!user) {
-      throw new ConflictException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     if (!!user.activatedAt) {
