@@ -33,6 +33,7 @@ export async function sendAccountVerificationEmail(data: {
 
   const accountVerificationUrl = [
     WEB_DOMAIN,
+    'auth',
     'verify-account',
     activationToken,
   ].join('/');
