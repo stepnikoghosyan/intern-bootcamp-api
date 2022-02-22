@@ -2,9 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { Sequelize } from 'sequelize-typescript';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as express from 'express';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-
 // modules
 import { AppModule } from './app.module';
 
@@ -18,7 +17,7 @@ import { ConfigEnum, IConfig } from './shared/interfaces/config-enum.enum';
 import { validateEnvVariables } from './shared/helpers/validate-env-variables.helper';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const sequelize = app.get(Sequelize);
 
@@ -37,13 +36,11 @@ async function bootstrap() {
   // Validation
   app.useGlobalPipes(new ValidationPipe());
 
-  // Serve Static Files
-  // TODO: check if there is more Nest.js way of serving static files
-  app.use(
-    '/public',
-    express.static(
-      join(process.cwd(), configService.get(ConfigEnum.ROOT_STORAGE_PATH)),
-    ),
+  app.useStaticAssets(
+    join(process.cwd(), configService.get(ConfigEnum.ROOT_STORAGE_PATH)),
+    {
+      prefix: '/public/',
+    },
   );
 
   // Swagger

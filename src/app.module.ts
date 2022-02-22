@@ -61,6 +61,22 @@ import { CommentsModule } from './routes/comments/comments.module';
       }),
     }),
 
+    // ServeStaticModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => {
+    //     return [
+    //       {
+    //         rootPath: join(
+    //           process.cwd(),
+    //           configService.get(ConfigEnum.ROOT_STORAGE_PATH),
+    //         ),
+    //         serveRoot: '/public',
+    //       },
+    //     ];
+    //   },
+    // }),
+
     UsersModule,
     AuthModule,
     PostsModule,
