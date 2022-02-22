@@ -59,6 +59,8 @@ export class AuthService extends BaseService<User> {
       throw new ForbiddenException('Account is not activated');
     }
 
+    // TODO: forbid login if reset password (forgot password) was requested
+
     return this.generateTokens(user.id);
   }
 
@@ -129,6 +131,7 @@ export class AuthService extends BaseService<User> {
 
     const resetPasswordUrl = [
       WEB_DOMAIN,
+      'auth',
       'reset-password',
       activationToken.token,
     ].join('/');
