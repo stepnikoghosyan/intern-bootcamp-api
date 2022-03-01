@@ -59,6 +59,7 @@ export class AuthController {
   @ApiQuery({ name: 'activationToken', type: String, required: true })
   @HttpCode(200)
   public verifyAccount(@Query() query) {
+    console.log('asd');
     return this.authService.verifyAccount(query);
   }
 
