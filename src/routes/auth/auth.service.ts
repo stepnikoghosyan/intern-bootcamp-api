@@ -158,10 +158,22 @@ export class AuthService extends BaseService<User> {
   }
 
   public async resetPassword(data: ResetPasswordDto): Promise<void> {
-    const decoded = await this.jwtService.verify(data.token, {
-      secret: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
-    });
+    if (!data || !data.token) {
+      throw new BadRequestException('Invalid token');
+    }
 
+    let decoded: { userId: number; tokenId: number } | undefined;
+
+    // Verify token
+    try {
+      decoded = this.jwtService.verify(data.token, {
+        secret: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
+      });
+    } catch (ex) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    // Verify data in token
     if (!decoded || !decoded.userId || !decoded.tokenId) {
       throw new BadRequestException('Invalid token');
     }
