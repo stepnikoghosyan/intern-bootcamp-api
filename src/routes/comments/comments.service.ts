@@ -69,6 +69,7 @@ export class CommentsService extends BaseService<Comment> {
           },
         },
       ],
+      order: [['createdAt', 'DESC']],
     };
 
     const { count, rows } = await this.model.findAndCountAll(options);
