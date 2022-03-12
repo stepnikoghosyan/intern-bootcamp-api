@@ -21,6 +21,8 @@ import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { RefreshTokensDto } from './dto/refresh-tokens.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { EmailValidityCheckDto } from './dto/email-validity-check.dto';
+
 // entities
 import { User } from '../users/user.entity';
 
@@ -262,6 +264,13 @@ export class AuthService extends BaseService<User> {
     }
 
     return this.generateTokens(decoded.id);
+  }
+
+  public async emailValidityCheck(data: EmailValidityCheckDto): Promise<void> {
+    const user = this.usersService.getUserByEmail(data.email);
+    if (!!user) {
+      throw new ConflictException('This email is already taken');
+    }
   }
 
   private async generateTokens(

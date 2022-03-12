@@ -14,6 +14,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 // custom decorators
 import { Public } from '../../shared/decorators/public-endpoint.decorator';
 import { ResendActivationTokenDto } from './dto/resend-activation-token.dto';
+import { EmailValidityCheckDto } from './dto/email-validity-check.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -68,5 +69,12 @@ export class AuthController {
   @HttpCode(200)
   public resendActivationToken(@Body() payload: ResendActivationTokenDto) {
     return this.authService.resendActivationToken(payload);
+  }
+
+  @Public()
+  @Post('email-validity-check')
+  @HttpCode(200)
+  public emailValidityCheck(@Body() payload: EmailValidityCheckDto) {
+    return this.authService.emailValidityCheck(payload);
   }
 }
