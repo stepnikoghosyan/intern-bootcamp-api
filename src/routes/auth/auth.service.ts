@@ -92,23 +92,35 @@ export class AuthService extends BaseService<User> {
 
     const { activationToken }: { activationToken: string } = query;
 
-    let decoded: { id: number };
+    let userId: number;
 
     // Verify token
     try {
-      decoded = this.jwtService.verify(activationToken, {
+      const decoded = this.jwtService.verify(activationToken, {
         secret: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
       });
+
+      // Just in case
+      if (!decoded) {
+        throw new BadRequestException('Invalid token');
+      }
+
+      userId = decoded.id;
     } catch (ex) {
       throw new BadRequestException('Invalid activation token');
     }
 
-    if (!!decoded && !!decoded.id) {
-      // Verify account
-      await this.usersService.activateUserAccount(decoded.id);
-    } else {
+    const user = await this.usersService.getByID(userId);
+    if (!!user.activatedAt) {
+      throw new BadRequestException('Account is already verified');
+    }
+
+    if (!userId) {
       throw new BadRequestException('Invalid activation token.');
     }
+
+    // Verify account
+    await this.usersService.activateUserAccount(userId);
   }
 
   public async forgotPassword(data: ForgotPasswordDto): Promise<void> {
