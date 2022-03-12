@@ -52,7 +52,7 @@ export class AuthService extends BaseService<User> {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.usersService.getUserByEmail(payload.email, true);
     if (!user || !(await compare(payload.password, user.password))) {
-      throw new BadRequestException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     if (!user.activatedAt) {
