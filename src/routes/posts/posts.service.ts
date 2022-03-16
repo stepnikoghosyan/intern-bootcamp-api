@@ -91,7 +91,7 @@ export class PostsService extends BaseService<Post> {
         },
       ],
       attributes: {
-        exclude: ['imageId', 'userId', 'activatedAt', 'createdAt', 'updatedAt'],
+        exclude: ['imageId', 'userId', 'activatedAt'],
         // include: [[Sequelize.col('attachment.fileName'), 'imageUrl']],
       },
     };
