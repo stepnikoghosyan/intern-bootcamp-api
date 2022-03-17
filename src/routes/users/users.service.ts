@@ -176,6 +176,7 @@ export class UsersService extends BaseService<User> {
           lastName: payload.lastName,
           email: payload.email,
         },
+        isUpdateAccountRequest: true,
       });
     } else {
       await user.update(dataForUpdate);

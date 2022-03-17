@@ -84,6 +84,7 @@ export class AuthService extends BaseService<User> {
         lastName: payload.lastName,
         email: payload.email,
       },
+      isUpdateAccountRequest: false,
     });
   }
 
@@ -236,6 +237,7 @@ export class AuthService extends BaseService<User> {
         lastName: user.lastName,
         email: user.email,
       },
+      isUpdateAccountRequest: false,
     });
   }
 

@@ -19,6 +19,7 @@ export async function sendAccountVerificationEmail(data: {
     lastName: string;
     email: string;
   };
+  isUpdateAccountRequest: boolean;
 }): Promise<void> {
   const WEB_DOMAIN = data.configService.get(ConfigEnum.WEB_DOMAIN);
 
@@ -53,8 +54,12 @@ export async function sendAccountVerificationEmail(data: {
   );
 
   if (!isEmailSent) {
-    throw new InternalServerErrorException(
-      'Registered successfully. Failed to send email.',
-    );
+    let msg = 'Registered successfully. Failed to send email.';
+    if (data.isUpdateAccountRequest) {
+      msg =
+        'Updated successfully. Failed to send email to verify new email address.';
+    }
+
+    throw new InternalServerErrorException(msg);
   }
 }
