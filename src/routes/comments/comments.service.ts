@@ -37,7 +37,7 @@ export class CommentsService extends BaseService<Comment> {
   public async getComments(
     queryParams?: ICommentQueryParams,
   ): Promise<IPaginationResponse<Comment>> {
-    if (!queryParams && !queryParams.posts && !queryParams.posts.length) {
+    if (!queryParams || !queryParams.posts || !queryParams.posts.length) {
       throw new BadRequestException('Post id is required');
     }
 
