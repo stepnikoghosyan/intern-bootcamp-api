@@ -160,6 +160,10 @@ export class UsersService extends BaseService<User> {
       if (!!attachment) {
         dataForUpdate.profilePictureId = attachment.id;
       }
+    } else if (!!user.profilePictureId) {
+      // Delete profile picture
+      await this.attachmentsService.deleteByID(user.profilePictureId);
+      dataForUpdate.profilePictureId = null;
     }
 
     if (payload.email !== dataForUpdate.email) {
