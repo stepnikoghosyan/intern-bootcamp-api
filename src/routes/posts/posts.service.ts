@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
+import { Op } from 'sequelize';
 
 // services
 import { BaseService } from '../../shared/base.service';
@@ -28,7 +29,6 @@ import { ConfigEnum } from '../../shared/interfaces/config-enum.enum';
 // helpers
 import { getProfilePictureUrl } from '../../shared/helpers/profile-picture-url.helper';
 import { Comment } from '../comments/comment.entity';
-import { Op } from 'sequelize';
 
 @Injectable()
 export class PostsService extends BaseService<Post> {

@@ -9,25 +9,31 @@ import { InjectModel } from '@nestjs/sequelize';
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize-typescript';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
+import { Op } from 'sequelize';
+
 // services
 import { BaseService } from '../../shared/base.service';
 import { AttachmentsService } from '../../modules/attachments/attachments.service';
 import { MailService } from '../../shared/modules/mail/mail.service';
 import { JwtService } from '@nestjs/jwt';
+
 // entities
 import { User } from './user.entity';
 import { Post } from '../posts/post.entity';
+
 // dto
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
 // models
 import { ConfigEnum } from '../../shared/interfaces/config-enum.enum';
 import { Attachment } from '../../modules/attachments/attachment.entity';
-import { IPaginationQueryParams } from '../../shared/interfaces/pagination-query-params.model';
 import { IPaginationResponse } from '../../shared/interfaces/pagination-response.model';
+
 // helpers
 import { sendAccountVerificationEmail } from '../../shared/helpers/send-account-verification-email.helper';
 import { getProfilePictureUrl } from '../../shared/helpers/profile-picture-url.helper';
+import { IUsersQueryParams } from './interfaces/users-query-params.model';
 
 @Injectable()
 export class UsersService extends BaseService<User> {
@@ -88,7 +94,8 @@ export class UsersService extends BaseService<User> {
   }
 
   public async getUsers(
-    queryParams: IPaginationQueryParams,
+    queryParams: IUsersQueryParams,
+    currentUserId: number,
   ): Promise<IPaginationResponse<any>> {
     const options: FindAndCountOptions<Post['_attributes']> = {
       ...this.getPaginationValues(queryParams),
@@ -101,6 +108,17 @@ export class UsersService extends BaseService<User> {
         include: [[Sequelize.col('fileName'), 'profilePictureUrl']],
       },
     };
+
+    if (
+      !!queryParams.excludeSelf &&
+      (queryParams.excludeSelf === 'true' || +queryParams.excludeSelf === 1)
+    ) {
+      options.where = {
+        id: {
+          [Op.not]: currentUserId,
+        },
+      };
+    }
 
     const { rows, count } = await this.model.findAndCountAll(options);
 

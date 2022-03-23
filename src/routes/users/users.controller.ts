@@ -19,9 +19,9 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 // models
-import { IQueryParams } from '../../shared/interfaces/query-params.model';
 import { CurrentUser } from '../../shared/decorators/current-user.decorator';
 import { User } from './user.entity';
+import { IUsersQueryParams } from './interfaces/users-query-params.model';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -33,8 +33,12 @@ export class UsersController {
   @ApiQuery({ name: 'page', type: Number, required: false })
   @ApiQuery({ name: 'pageSize', type: Number, required: false })
   @ApiQuery({ name: 'showAll', type: Boolean, required: false })
-  get(@Query() queryParams: IQueryParams) {
-    return this.usersService.getUsers(queryParams);
+  @ApiQuery({ name: 'excludeSelf', type: Boolean, required: false })
+  get(
+    @Query() queryParams: IUsersQueryParams,
+    @CurrentUser() currentUser: Partial<User>,
+  ) {
+    return this.usersService.getUsers(queryParams, currentUser.id);
   }
 
   @Get('my-profile')
