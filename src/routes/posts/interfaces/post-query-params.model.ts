@@ -2,5 +2,5 @@ import { IPaginationQueryParams } from '../../../shared/interfaces/pagination-qu
 
 export interface IPostQueryParams extends IPaginationQueryParams {
   userID?: number;
-  name?: string;
+  title?: string;
 }

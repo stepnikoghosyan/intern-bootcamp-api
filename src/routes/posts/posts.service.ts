@@ -210,9 +210,9 @@ export class PostsService extends BaseService<Post> {
       whereClause.userId = queryParams.userID;
     }
 
-    if (queryParams.name?.trim()) {
+    if (queryParams.title?.trim()) {
       whereClause.title = {
-        [Op.like]: '%' + queryParams.name.trim() + '%',
+        [Op.like]: '%' + queryParams.title.trim() + '%',
       };
     }
 
