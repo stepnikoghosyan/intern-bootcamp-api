@@ -2,4 +2,5 @@ import { IPaginationQueryParams } from 'src/shared/interfaces/pagination-query-p
 
 export interface IUsersQueryParams extends IPaginationQueryParams {
   excludeSelf?: boolean | string | number;
+  search?: string;
 }

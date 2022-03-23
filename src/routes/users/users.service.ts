@@ -9,7 +9,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize-typescript';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 
 // services
 import { BaseService } from '../../shared/base.service';
@@ -109,16 +109,34 @@ export class UsersService extends BaseService<User> {
       },
     };
 
+    let whereClause: { [key: string]: any } = {};
+
     if (
       !!queryParams.excludeSelf &&
       (queryParams.excludeSelf === 'true' || +queryParams.excludeSelf === 1)
     ) {
-      options.where = {
-        id: {
-          [Op.not]: currentUserId,
-        },
+      whereClause.id = {
+        [Op.not]: currentUserId,
       };
     }
+
+    if (queryParams.search?.trim()) {
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          {
+            firstName: {
+              [Op.like]: '%' + queryParams.search.trim() + '%',
+            },
+            lastName: {
+              [Op.like]: '%' + queryParams.search.trim() + '%',
+            },
+          },
+        ],
+      };
+    }
+
+    options.where = whereClause;
 
     const { rows, count } = await this.model.findAndCountAll(options);
 
