@@ -24,6 +24,7 @@ import { ConfigEnum } from '../../shared/interfaces/config-enum.enum';
 // helpers
 import { getProfilePictureUrl } from '../../shared/helpers/profile-picture-url.helper';
 import { Comment } from '../comments/comment.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class PostsService extends BaseService<Post> {
@@ -203,11 +204,19 @@ export class PostsService extends BaseService<Post> {
       },
     };
 
+    const whereClause: { userId?: number; title?: any } = {};
+
     if (queryParams.userID) {
-      options.where = {
-        userId: queryParams.userID,
+      whereClause.userId = queryParams.userID;
+    }
+
+    if (queryParams.name?.trim()) {
+      whereClause.title = {
+        [Op.like]: '%' + queryParams.name.trim() + '%',
       };
     }
+
+    options.where = whereClause;
 
     const { rows, count } = await this.model.findAndCountAll(options);
     return {
