@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
 
@@ -294,12 +298,15 @@ export class PostsService extends BaseService<Post> {
     const post = await this.model.findOne({
       where: {
         id: postID,
-        userId: userID,
       },
     });
 
     if (!post) {
       throw new NotFoundException('Post by given id not found');
+    }
+
+    if (post.userId !== userID) {
+      throw new ForbiddenException('You cannot edit this post');
     }
 
     const dataForUpdate: Partial<Post> = {
