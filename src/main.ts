@@ -50,11 +50,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    optionsSuccessStatus: 204,
-  });
+  app.enableCors();
+  
   await app.listen(
     process.env.PORT || configService.get<number>(ConfigEnum.PORT),
   );

@@ -34,6 +34,7 @@ export class UsersController {
   @ApiQuery({ name: 'pageSize', type: Number, required: false })
   @ApiQuery({ name: 'showAll', type: Boolean, required: false })
   @ApiQuery({ name: 'excludeSelf', type: Boolean, required: false })
+  @ApiQuery({ name: 'search', type: String, required: false })
   get(
     @Query() queryParams: IUsersQueryParams,
     @CurrentUser() currentUser: Partial<User>,
