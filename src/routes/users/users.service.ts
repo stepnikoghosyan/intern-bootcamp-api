@@ -196,7 +196,8 @@ export class UsersService extends BaseService<User> {
       if (!!attachment) {
         dataForUpdate.profilePictureId = attachment.id;
       }
-    } else if (!!user.profilePictureId) {
+    } else if (!payload.profilePicture && !!user.profilePictureId) {
+      // TODO: Add check in IF statement to make sure url in payload is same as current profile picture in db
       // Delete profile picture
       await this.attachmentsService.deleteByID(user.profilePictureId);
       dataForUpdate.profilePictureId = null;
