@@ -120,16 +120,22 @@ export class UsersService extends BaseService<User> {
       };
     }
 
+    // console.log('hopar:', queryParams.search.trim().toLocaleLowerCase());
+
     if (queryParams.search?.trim()) {
       whereClause = {
         ...whereClause,
         [Op.or]: [
           {
             firstName: {
-              [Op.like]: '%' + queryParams.search.trim() + '%',
+              [Op.like]:
+                '%' + queryParams.search.trim().toLocaleLowerCase() + '%',
             },
+          },
+          {
             lastName: {
-              [Op.like]: '%' + queryParams.search.trim() + '%',
+              [Op.like]:
+                '%' + queryParams.search.trim().toLocaleLowerCase() + '%',
             },
           },
         ],
