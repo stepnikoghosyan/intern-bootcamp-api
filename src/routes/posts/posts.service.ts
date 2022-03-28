@@ -323,6 +323,9 @@ export class PostsService extends BaseService<Post> {
       if (!!attachment) {
         dataForUpdate.imageId = attachment.id;
       }
+    } else if (!payload.image && !!post.imageId) {
+      await this.attachmentsService.deleteByID(post.imageId);
+      dataForUpdate.imageId = null;
     }
 
     await post.update(dataForUpdate);
