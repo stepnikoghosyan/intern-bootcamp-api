@@ -193,6 +193,14 @@ export class UsersService extends BaseService<User> {
       email: payload.email || user.email,
     };
 
+    if (!!payload.password) {
+      const hashedPassword = await hash(
+        payload.password,
+        +this.configService.get(ConfigEnum.HASH_SALT_ROUNDS),
+      );
+      dataForUpdate.password = hashedPassword;
+    }
+
     if (!!file) {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.profilePicturesPathInStorage,
