@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
-import { Op, where } from 'sequelize';
+import { Op } from 'sequelize';
 
 // services
 import { BaseService } from '../../shared/base.service';
