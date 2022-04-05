@@ -270,6 +270,21 @@ export class UsersService extends BaseService<User> {
     );
   }
 
+  public async deleteUser(userID: number): Promise<void> {
+    const user = await this.getByID(userID);
+    if (!user) {
+      throw new NotFoundException('User with given id not found');
+    }
+
+    if (!!user.profilePictureId) {
+      await this.attachmentsService.deleteByID(user.profilePictureId);
+    }
+
+    await user.destroy();
+
+    // const attachment = this.attachmentsService.getAttachmentById(user.attachment.id);
+  }
+
   private get profilePicturesPathInStorage(): string {
     const names = [
       ConfigEnum.ROOT_STORAGE_PATH,

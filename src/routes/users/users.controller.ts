@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -62,5 +63,12 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.usersService.updateUser(currentUser.id, payload, file);
+  }
+
+  @Delete('/:id')
+  @HttpCode(204)
+  public delete(@Param('id') userID: number) {
+    // TODO: Add CurrentUser decorator so user can delete only his account
+    return this.usersService.deleteUser(userID);
   }
 }
