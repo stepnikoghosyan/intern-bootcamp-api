@@ -72,7 +72,12 @@ export class CommentsService extends BaseService<Comment> {
       order: [['createdAt', 'DESC']],
     };
 
-    const { count, rows } = await this.model.findAndCountAll(options);
+    const rows = await this.model.findAll(options);
+    const count = await this.model.count({
+      where: {
+        postId: queryParams.posts,
+      },
+    });
 
     return {
       count,

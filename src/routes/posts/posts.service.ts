@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 
 // services
 import { BaseService } from '../../shared/base.service';
@@ -222,7 +222,8 @@ export class PostsService extends BaseService<Post> {
 
     options.where = whereClause;
 
-    const { rows, count } = await this.model.findAndCountAll(options);
+    const rows = await this.model.findAll(options);
+    const count = await this.model.count({ where: whereClause });
     return {
       count: count,
       results: JSON.parse(JSON.stringify(rows)).map((item) => {

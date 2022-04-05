@@ -144,7 +144,8 @@ export class UsersService extends BaseService<User> {
 
     options.where = whereClause;
 
-    const { rows, count } = await this.model.findAndCountAll(options);
+    const rows = await this.model.findAll(options);
+    const count = await this.model.count({ where: whereClause });
 
     return {
       count: count,
