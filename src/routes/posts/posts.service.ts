@@ -206,6 +206,7 @@ export class PostsService extends BaseService<Post> {
         exclude: ['imageId', 'userId', 'activatedAt', 'createdAt', 'updatedAt'],
         // include: [[Sequelize.col('attachment.fileName'), 'imageUrl']],
       },
+      order: [['createdAt', 'DESC']],
     };
 
     const whereClause: { userId?: number; title?: any } = {};
