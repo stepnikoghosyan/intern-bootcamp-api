@@ -281,7 +281,7 @@ export class PostsService extends BaseService<Post> {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.postImagesPathInStorage,
         null,
-        file,
+        file.filename,
       );
       if (!!attachment) {
         createData.imageId = attachment.id;
@@ -320,7 +320,7 @@ export class PostsService extends BaseService<Post> {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.postImagesPathInStorage,
         post.imageId,
-        file,
+        file.filename,
       );
       if (!!attachment) {
         dataForUpdate.imageId = attachment.id;

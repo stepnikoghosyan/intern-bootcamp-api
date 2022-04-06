@@ -206,7 +206,7 @@ export class UsersService extends BaseService<User> {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.profilePicturesPathInStorage,
         user.profilePictureId,
-        file,
+        file.filename,
       );
       if (!!attachment) {
         dataForUpdate.profilePictureId = attachment.id;
