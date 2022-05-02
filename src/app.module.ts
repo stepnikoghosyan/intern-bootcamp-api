@@ -51,7 +51,7 @@ import { DemoModule } from './modules/demo-data/demo.module';
           IConfig[ConfigEnum.DATABASE_CONNECTION_LIMIT]
         >(ConfigEnum.DATABASE_CONNECTION_LIMIT),
         models: getEntitiesList(),
-        synchronize: true,
+        // synchronize: true,
         // sync
       }),
     }),
