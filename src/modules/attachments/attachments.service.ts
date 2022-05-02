@@ -20,7 +20,7 @@ export class AttachmentsService extends BaseService<Attachment> {
   public async createOrUpdate(
     basePath: string,
     previousAttachmentID: number,
-    file: Express.Multer.File,
+    fileName: string,
   ): Promise<Attachment> {
     let resultAttachment: Attachment;
 
@@ -33,7 +33,7 @@ export class AttachmentsService extends BaseService<Attachment> {
 
       // Update attachment fileName
       await currentAttachment.update({
-        fileName: file.filename,
+        fileName,
       });
 
       // Delete previous file from storage
@@ -44,7 +44,7 @@ export class AttachmentsService extends BaseService<Attachment> {
       resultAttachment = currentAttachment;
     } else {
       // Create
-      resultAttachment = await this.model.create({ fileName: file.filename });
+      resultAttachment = await this.model.create({ fileName });
     }
 
     return resultAttachment;

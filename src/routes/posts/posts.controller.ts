@@ -37,6 +37,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
+  @ApiQuery({ name: 'title', type: String, required: false })
   @ApiQuery({ name: 'page', type: Number, required: false })
   @ApiQuery({ name: 'pageSize', type: Number, required: false })
   @ApiQuery({ name: 'showAll', type: Boolean, required: false })

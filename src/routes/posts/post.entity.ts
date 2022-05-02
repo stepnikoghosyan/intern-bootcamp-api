@@ -7,6 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
+import { TEXT } from 'sequelize';
 
 // entities
 import { Attachment } from '../../modules/attachments/attachment.entity';
@@ -19,7 +20,7 @@ export class Post extends Model {
   @ApiProperty()
   title: string;
 
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, type: TEXT })
   @ApiProperty()
   body: string;
 

@@ -37,7 +37,7 @@ export class CommentsService extends BaseService<Comment> {
   public async getComments(
     queryParams?: ICommentQueryParams,
   ): Promise<IPaginationResponse<Comment>> {
-    if (!queryParams && !queryParams.posts && !queryParams.posts.length) {
+    if (!queryParams || !queryParams.posts || !queryParams.posts.length) {
       throw new BadRequestException('Post id is required');
     }
 
@@ -69,18 +69,24 @@ export class CommentsService extends BaseService<Comment> {
           },
         },
       ],
+      order: [['createdAt', 'DESC']],
     };
 
-    const { count, rows } = await this.model.findAndCountAll(options);
+    const rows = await this.model.findAll(options);
+    const count = await this.model.count({
+      where: {
+        postId: queryParams.posts,
+      },
+    });
 
     return {
       count,
       results: JSON.parse(JSON.stringify(rows)).map((item) => {
         if (item.user.attachment?.fileName) {
-          item.user.profilePictureUrl = `${getProfilePictureUrl(
+          item.user.profilePictureUrl = getProfilePictureUrl(
             this.configService,
             item.user.attachment.fileName,
-          )}`;
+          );
         } else {
           item.user.profilePictureUrl = null;
         }

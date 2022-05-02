@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
+import { Op } from 'sequelize';
 
 // services
 import { BaseService } from '../../shared/base.service';
@@ -91,7 +96,7 @@ export class PostsService extends BaseService<Post> {
         },
       ],
       attributes: {
-        exclude: ['imageId', 'userId', 'activatedAt', 'createdAt', 'updatedAt'],
+        exclude: ['imageId', 'userId', 'activatedAt'],
         // include: [[Sequelize.col('attachment.fileName'), 'imageUrl']],
       },
     };
@@ -114,10 +119,10 @@ export class PostsService extends BaseService<Post> {
 
     // user
     if (data.user.attachment?.fileName) {
-      data.user.profilePictureUrl = `${getProfilePictureUrl(
+      data.user.profilePictureUrl = getProfilePictureUrl(
         this.configService,
         data.user.attachment.fileName,
-      )}`;
+      );
     } else {
       data.user.profilePictureUrl = null;
     }
@@ -126,10 +131,10 @@ export class PostsService extends BaseService<Post> {
     // comment
     data.comments.map((comment) => {
       if (comment.user.attachment?.fileName) {
-        comment.user.profilePictureUrl = `${getProfilePictureUrl(
+        comment.user.profilePictureUrl = getProfilePictureUrl(
           this.configService,
           comment.user.attachment.fileName,
-        )}`;
+        );
       } else {
         comment.user.profilePictureUrl = null;
       }
@@ -198,18 +203,28 @@ export class PostsService extends BaseService<Post> {
         },
       ],
       attributes: {
-        exclude: ['imageId', 'userId', 'activatedAt', 'createdAt', 'updatedAt'],
+        exclude: ['imageId', 'userId', 'activatedAt', 'updatedAt'],
         // include: [[Sequelize.col('attachment.fileName'), 'imageUrl']],
       },
+      order: [['createdAt', 'DESC']],
     };
 
+    const whereClause: { userId?: number; title?: any } = {};
+
     if (queryParams.userID) {
-      options.where = {
-        userId: queryParams.userID,
+      whereClause.userId = queryParams.userID;
+    }
+
+    if (queryParams.title?.trim()) {
+      whereClause.title = {
+        [Op.like]: '%' + queryParams.title.trim() + '%',
       };
     }
 
-    const { rows, count } = await this.model.findAndCountAll(options);
+    options.where = whereClause;
+
+    const rows = await this.model.findAll(options);
+    const count = await this.model.count({ where: whereClause });
     return {
       count: count,
       results: JSON.parse(JSON.stringify(rows)).map((item) => {
@@ -223,10 +238,10 @@ export class PostsService extends BaseService<Post> {
 
         // user
         if (item.user.attachment?.fileName) {
-          item.user.profilePictureUrl = `${getProfilePictureUrl(
+          item.user.profilePictureUrl = getProfilePictureUrl(
             this.configService,
             item.user.attachment.fileName,
-          )}`;
+          );
         } else {
           item.user.profilePictureUrl = null;
         }
@@ -235,10 +250,10 @@ export class PostsService extends BaseService<Post> {
         // comment
         item.comments.map((comment) => {
           if (comment.user.attachment?.fileName) {
-            comment.user.profilePictureUrl = `${getProfilePictureUrl(
+            comment.user.profilePictureUrl = getProfilePictureUrl(
               this.configService,
               comment.user.attachment.fileName,
-            )}`;
+            );
           } else {
             comment.user.profilePictureUrl = null;
           }
@@ -266,7 +281,7 @@ export class PostsService extends BaseService<Post> {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.postImagesPathInStorage,
         null,
-        file,
+        file.filename,
       );
       if (!!attachment) {
         createData.imageId = attachment.id;
@@ -285,12 +300,15 @@ export class PostsService extends BaseService<Post> {
     const post = await this.model.findOne({
       where: {
         id: postID,
-        userId: userID,
       },
     });
 
     if (!post) {
       throw new NotFoundException('Post by given id not found');
+    }
+
+    if (post.userId !== userID) {
+      throw new ForbiddenException('You cannot edit this post');
     }
 
     const dataForUpdate: Partial<Post> = {
@@ -302,11 +320,14 @@ export class PostsService extends BaseService<Post> {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.postImagesPathInStorage,
         post.imageId,
-        file,
+        file.filename,
       );
       if (!!attachment) {
         dataForUpdate.imageId = attachment.id;
       }
+    } else if (!payload.image && !!post.imageId) {
+      await this.attachmentsService.deleteByID(post.imageId);
+      dataForUpdate.imageId = null;
     }
 
     await post.update(dataForUpdate);

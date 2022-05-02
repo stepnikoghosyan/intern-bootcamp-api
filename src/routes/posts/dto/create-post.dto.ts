@@ -24,5 +24,5 @@ export class CreatePostDto {
       },
     },
   })
-  image: any;
+  image?: any;
 }

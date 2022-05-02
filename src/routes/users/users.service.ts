@@ -9,25 +9,31 @@ import { InjectModel } from '@nestjs/sequelize';
 import { hash } from 'bcrypt';
 import { Sequelize } from 'sequelize-typescript';
 import { FindAndCountOptions } from 'sequelize/types/lib/model';
+import { Op, where } from 'sequelize';
+
 // services
 import { BaseService } from '../../shared/base.service';
 import { AttachmentsService } from '../../modules/attachments/attachments.service';
 import { MailService } from '../../shared/modules/mail/mail.service';
 import { JwtService } from '@nestjs/jwt';
+
 // entities
 import { User } from './user.entity';
 import { Post } from '../posts/post.entity';
+
 // dto
 import { UserRegisterDto } from '../auth/dto/user-register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
 // models
 import { ConfigEnum } from '../../shared/interfaces/config-enum.enum';
 import { Attachment } from '../../modules/attachments/attachment.entity';
-import { IPaginationQueryParams } from '../../shared/interfaces/pagination-query-params.model';
 import { IPaginationResponse } from '../../shared/interfaces/pagination-response.model';
+
 // helpers
 import { sendAccountVerificationEmail } from '../../shared/helpers/send-account-verification-email.helper';
 import { getProfilePictureUrl } from '../../shared/helpers/profile-picture-url.helper';
+import { IUsersQueryParams } from './interfaces/users-query-params.model';
 
 @Injectable()
 export class UsersService extends BaseService<User> {
@@ -59,10 +65,10 @@ export class UsersService extends BaseService<User> {
 
     const data = JSON.parse(JSON.stringify(user));
     delete data.attachment;
-    data.profilePictureUrl = `${getProfilePictureUrl(
+    data.profilePictureUrl = getProfilePictureUrl(
       this.configService,
       data.profilePictureUrl,
-    )}`;
+    );
 
     return data;
   }
@@ -88,7 +94,8 @@ export class UsersService extends BaseService<User> {
   }
 
   public async getUsers(
-    queryParams: IPaginationQueryParams,
+    queryParams: IUsersQueryParams,
+    currentUserId: number,
   ): Promise<IPaginationResponse<any>> {
     const options: FindAndCountOptions<Post['_attributes']> = {
       ...this.getPaginationValues(queryParams),
@@ -102,17 +109,53 @@ export class UsersService extends BaseService<User> {
       },
     };
 
-    const { rows, count } = await this.model.findAndCountAll(options);
+    let whereClause: { [key: string]: any } = {};
+
+    if (
+      !!queryParams.excludeSelf &&
+      (queryParams.excludeSelf === 'true' || +queryParams.excludeSelf === 1)
+    ) {
+      whereClause.id = {
+        [Op.not]: currentUserId,
+      };
+    }
+
+    // console.log('hopar:', queryParams.search.trim().toLocaleLowerCase());
+
+    if (queryParams.search?.trim()) {
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          {
+            firstName: {
+              [Op.like]:
+                '%' + queryParams.search.trim().toLocaleLowerCase() + '%',
+            },
+          },
+          {
+            lastName: {
+              [Op.like]:
+                '%' + queryParams.search.trim().toLocaleLowerCase() + '%',
+            },
+          },
+        ],
+      };
+    }
+
+    options.where = whereClause;
+
+    const rows = await this.model.findAll(options);
+    const count = await this.model.count({ where: whereClause });
 
     return {
       count: count,
       results: JSON.parse(JSON.stringify(rows)).map((item) => {
         delete item.attachment;
 
-        item.profilePictureUrl = `${getProfilePictureUrl(
+        item.profilePictureUrl = getProfilePictureUrl(
           this.configService,
           item.profilePictureUrl,
-        )}`;
+        );
         return item;
       }),
     };
@@ -151,15 +194,28 @@ export class UsersService extends BaseService<User> {
       email: payload.email || user.email,
     };
 
+    if (!!payload.password) {
+      const hashedPassword = await hash(
+        payload.password,
+        +this.configService.get(ConfigEnum.HASH_SALT_ROUNDS),
+      );
+      dataForUpdate.password = hashedPassword;
+    }
+
     if (!!file) {
       const attachment = await this.attachmentsService.createOrUpdate(
         this.profilePicturesPathInStorage,
         user.profilePictureId,
-        file,
+        file.filename,
       );
       if (!!attachment) {
         dataForUpdate.profilePictureId = attachment.id;
       }
+    } else if (!payload.profilePicture && !!user.profilePictureId) {
+      // TODO: Add check in IF statement to make sure url in payload is same as current profile picture in db
+      // Delete profile picture
+      await this.attachmentsService.deleteByID(user.profilePictureId);
+      dataForUpdate.profilePictureId = null;
     }
 
     if (payload.email !== dataForUpdate.email) {
@@ -176,6 +232,7 @@ export class UsersService extends BaseService<User> {
           lastName: payload.lastName,
           email: payload.email,
         },
+        isUpdateAccountRequest: true,
       });
     } else {
       await user.update(dataForUpdate);
@@ -211,6 +268,21 @@ export class UsersService extends BaseService<User> {
       },
       { where: { id: userID } },
     );
+  }
+
+  public async deleteUser(userID: number): Promise<void> {
+    const user = await this.getByID(userID);
+    if (!user) {
+      throw new NotFoundException('User with given id not found');
+    }
+
+    if (!!user.profilePictureId) {
+      await this.attachmentsService.deleteByID(user.profilePictureId);
+    }
+
+    await user.destroy();
+
+    // const attachment = this.attachmentsService.getAttachmentById(user.attachment.id);
   }
 
   private get profilePicturesPathInStorage(): string {

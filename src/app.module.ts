@@ -20,6 +20,7 @@ import { JwtStrategy } from './routes/auth/passport-strategies/jwt.strategy';
 // guards
 import { JwtAuthGuard } from './shared/guards/jwt-auth-guard.service';
 import { CommentsModule } from './routes/comments/comments.module';
+import { DemoModule } from './modules/demo-data/demo.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { CommentsModule } from './routes/comments/comments.module';
         >(ConfigEnum.DATABASE_CONNECTION_LIMIT),
         models: getEntitiesList(),
         synchronize: true,
+        // sync
       }),
     }),
     SendGridModule.forRootAsync({
@@ -61,10 +63,27 @@ import { CommentsModule } from './routes/comments/comments.module';
       }),
     }),
 
+    // ServeStaticModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => {
+    //     return [
+    //       {
+    //         rootPath: join(
+    //           process.cwd(),
+    //           configService.get(ConfigEnum.ROOT_STORAGE_PATH),
+    //         ),
+    //         serveRoot: '/public',
+    //       },
+    //     ];
+    //   },
+    // }),
+
     UsersModule,
     AuthModule,
     PostsModule,
     CommentsModule,
+    DemoModule,
   ],
 
   providers: [

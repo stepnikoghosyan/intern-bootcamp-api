@@ -24,6 +24,7 @@ export abstract class BaseService<T extends any = ModelCtor<Model<any, any>>> {
   public async getByPagination(
     queryParams: IPaginationQueryParams,
   ): Promise<IPaginationResponse<T>> {
+    console.log('\nHOPAR\n');
     const { rows, count } = await this.DB_MODEL.findAndCountAll({
       ...this.getPaginationValues(queryParams),
     });

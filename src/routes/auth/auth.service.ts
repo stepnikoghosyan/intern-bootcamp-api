@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -20,11 +21,14 @@ import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { RefreshTokensDto } from './dto/refresh-tokens.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { EmailValidityCheckDto } from './dto/email-validity-check.dto';
+
 // entities
 import { User } from '../users/user.entity';
 
 // dto
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResendActivationTokenDto } from './dto/resend-activation-token.dto';
 
 // models
 import { UserTokenTypes } from '../../modules/tokens/interfaces/token-types.model';
@@ -50,12 +54,14 @@ export class AuthService extends BaseService<User> {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.usersService.getUserByEmail(payload.email, true);
     if (!user || !(await compare(payload.password, user.password))) {
-      throw new BadRequestException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     if (!user.activatedAt) {
       throw new ForbiddenException('Account is not activated');
     }
+
+    // TODO: forbid login if reset password (forgot password) was requested
 
     return this.generateTokens(user.id);
   }
@@ -78,33 +84,46 @@ export class AuthService extends BaseService<User> {
         lastName: payload.lastName,
         email: payload.email,
       },
+      isUpdateAccountRequest: false,
     });
   }
 
   public async verifyAccount(query: any): Promise<void> {
     if (!query) {
-      throw new BadRequestException('Invalid query');
+      throw new BadRequestException('Invalid token');
     }
 
     const { activationToken }: { activationToken: string } = query;
 
-    let decoded: { id: number };
+    let userId: number;
 
     // Verify token
     try {
-      decoded = this.jwtService.verify(activationToken, {
+      const decoded = this.jwtService.verify(activationToken, {
         secret: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
       });
+
+      // Just in case
+      if (!decoded) {
+        throw new BadRequestException('Invalid token');
+      }
+
+      userId = decoded.id;
     } catch (ex) {
       throw new BadRequestException('Invalid activation token');
     }
 
-    if (!!decoded && !!decoded.id) {
-      // Verify account
-      await this.usersService.activateUserAccount(decoded.id);
-    } else {
+    const user = await this.usersService.getByID(userId);
+    if (!!user.activatedAt) {
+      throw new BadRequestException('Account is already verified');
+    }
+
+    if (!userId) {
       throw new BadRequestException('Invalid activation token.');
     }
+
+    // Verify account
+    await this.usersService.activateUserAccount(userId);
   }
 
   public async forgotPassword(data: ForgotPasswordDto): Promise<void> {
@@ -127,6 +146,7 @@ export class AuthService extends BaseService<User> {
 
     const resetPasswordUrl = [
       WEB_DOMAIN,
+      'auth',
       'reset-password',
       activationToken.token,
     ].join('/');
@@ -153,10 +173,22 @@ export class AuthService extends BaseService<User> {
   }
 
   public async resetPassword(data: ResetPasswordDto): Promise<void> {
-    const decoded = await this.jwtService.verify(data.token, {
-      secret: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
-    });
+    if (!data || !data.token) {
+      throw new BadRequestException('Invalid token');
+    }
 
+    let decoded: { userId: number; tokenId: number } | undefined;
+
+    // Verify token
+    try {
+      decoded = this.jwtService.verify(data.token, {
+        secret: this.configService.get(ConfigEnum.JWT_PRIVATE_KEY),
+      });
+    } catch (ex) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    // Verify data in token
     if (!decoded || !decoded.userId || !decoded.tokenId) {
       throw new BadRequestException('Invalid token');
     }
@@ -181,6 +213,32 @@ export class AuthService extends BaseService<User> {
     await this.usersService.changeUserPassword(user.id, data.newPassword);
 
     await this.tokensService.deleteToken(userToken.id);
+  }
+
+  public async resendActivationToken(
+    data: ResendActivationTokenDto,
+  ): Promise<void> {
+    const user = await this.usersService.getUserByEmail(data.email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!!user.activatedAt) {
+      throw new BadRequestException('Account is already verified');
+    }
+
+    await sendAccountVerificationEmail({
+      mailService: this.mailService,
+      configService: this.configService,
+      jwtService: this.jwtService,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+      isUpdateAccountRequest: false,
+    });
   }
 
   public async refreshTokens(
@@ -208,6 +266,13 @@ export class AuthService extends BaseService<User> {
     }
 
     return this.generateTokens(decoded.id);
+  }
+
+  public async emailValidityCheck(data: EmailValidityCheckDto): Promise<void> {
+    const user = this.usersService.getUserByEmail(data.email);
+    if (!!user) {
+      throw new ConflictException('This email is already taken');
+    }
   }
 
   private async generateTokens(
