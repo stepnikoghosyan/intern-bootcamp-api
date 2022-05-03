@@ -6,11 +6,16 @@ import {
   ForeignKey,
   HasMany,
   BelongsTo,
+  BelongsToMany,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
+
+// entities
 import { Attachment } from '../../modules/attachments/attachment.entity';
 import { Post } from '../posts/post.entity';
 import { Comment } from '../comments/comment.entity';
+import { Group } from './../messanger/entities/group.entity';
+import { GroupMember } from '../messanger/entities/group-member.entity';
 
 @Table({
   defaultScope: {
@@ -57,4 +62,7 @@ export class User extends Model {
 
   @HasMany(() => Comment)
   comments?: Comment[];
+
+  @BelongsToMany(() => Group, () => GroupMember)
+  groups: Group[];
 }
