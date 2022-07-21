@@ -6,7 +6,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { TEXT } from 'sequelize';
+import { TEXT, BOOLEAN } from 'sequelize';
 
 // entities
 import { Message } from './messsage.entity';
@@ -19,9 +19,13 @@ export class Group extends Model {
   @ApiProperty()
   name: string;
 
+  @Column({ allowNull: false, type: BOOLEAN, defaultValue: false })
+  @ApiProperty()
+  isPersonal: boolean;
+
   @HasMany(() => Message)
   messages?: Message[];
 
   @BelongsToMany(() => User, () => GroupMember)
-  users: User[];
+  users: Array<User & { GroupMember: GroupMember }>;
 }

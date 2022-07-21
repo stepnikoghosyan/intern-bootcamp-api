@@ -64,5 +64,5 @@ export class User extends Model {
   comments?: Comment[];
 
   @BelongsToMany(() => Group, () => GroupMember)
-  groups: Group[];
+  groups: Array<Group & { GroupMember: GroupMember }>;
 }

@@ -21,14 +21,14 @@ export class Message extends Model {
   @BelongsTo(() => User)
   sender: User;
 
-  @ForeignKey(() => User)
   @Column({ allowNull: false })
+  @ForeignKey(() => User)
   senderId: number;
 
   @BelongsTo(() => Group)
   group: Group;
 
-  @ForeignKey(() => Group)
   @Column({ allowNull: false })
+  @ForeignKey(() => Group)
   groupId: number;
 }

@@ -152,7 +152,10 @@ export class GroupsService extends BaseService<Group> {
         throw new NotFoundException('Group with given id not found');
       }
 
-      await group.update(payload, { transaction });
+      await group.update(
+        { ...payload, isPersonal: group.isPersonal },
+        { transaction },
+      );
 
       await transaction.commit();
 

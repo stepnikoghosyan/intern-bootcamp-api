@@ -7,6 +7,9 @@ import { SendGridModule } from '@anchan828/nest-sendgrid';
 import { UsersModule } from './routes/users/users.module';
 import { AuthModule } from './routes/auth/auth.module';
 import { PostsModule } from './routes/posts/posts.module';
+import { CommentsModule } from './routes/comments/comments.module';
+import { MessangerModule } from './routes/messanger/messanger.module';
+import { DemoModule } from './modules/demo-data/demo.module';
 
 // interfaces
 import { ConfigEnum, IConfig } from './shared/interfaces/config-enum.enum';
@@ -19,8 +22,6 @@ import { JwtStrategy } from './routes/auth/passport-strategies/jwt.strategy';
 
 // guards
 import { JwtAuthGuard } from './shared/guards/jwt-auth-guard.service';
-import { CommentsModule } from './routes/comments/comments.module';
-import { DemoModule } from './modules/demo-data/demo.module';
 
 @Module({
   imports: [
@@ -52,7 +53,11 @@ import { DemoModule } from './modules/demo-data/demo.module';
         >(ConfigEnum.DATABASE_CONNECTION_LIMIT),
         models: getEntitiesList(),
         synchronize: true,
-        // sync
+        sync: {
+          alter: {
+            drop: false,
+          },
+        },
       }),
     }),
     SendGridModule.forRootAsync({
@@ -63,26 +68,11 @@ import { DemoModule } from './modules/demo-data/demo.module';
       }),
     }),
 
-    // ServeStaticModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: (configService: ConfigService) => {
-    //     return [
-    //       {
-    //         rootPath: join(
-    //           process.cwd(),
-    //           configService.get(ConfigEnum.ROOT_STORAGE_PATH),
-    //         ),
-    //         serveRoot: '/public',
-    //       },
-    //     ];
-    //   },
-    // }),
-
     UsersModule,
     AuthModule,
     PostsModule,
     CommentsModule,
+    MessangerModule,
     DemoModule,
   ],
 
