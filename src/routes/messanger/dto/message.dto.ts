@@ -3,8 +3,9 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  MaxLength, ValidateNested
-} from "class-validator";
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // dto
@@ -21,7 +22,7 @@ export class CreateOrUpdateMessageDto {
 
   @ApiPropertyOptional()
   @ValidateNested()
-  @IsOptional({ })
+  @IsOptional({})
   group?: GroupDto;
 
   @ApiPropertyOptional()

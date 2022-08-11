@@ -13,13 +13,13 @@ import { GroupsService } from './groups.service';
 
 // entities
 import { Message } from '../entities/messsage.entity';
+import { Group } from '../entities/group.entity';
 
 // dto
 import { CreateOrUpdateMessageDto } from '../dto/message.dto';
 
 // models
 import { IPaginationResponse } from '../../../shared/interfaces/pagination-response.model';
-import { Group } from "../entities/group.entity";
 
 @Injectable()
 export class MessangerService extends BaseService<Message> {
